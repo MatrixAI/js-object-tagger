@@ -98,7 +98,12 @@ export default [
         preferBuiltins: false,
         browser: true
       }),
-      commonjs()
+      commonjs({
+        namedExports: {
+          'node_modules/resource-counter/dist/index.browser.umd.js': ['CounterImmutable'],
+          'node_modules/immutable/dist/immutable.js': ['Map']
+        }
+      })
     ]
   }
 ];
