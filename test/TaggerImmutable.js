@@ -141,6 +141,84 @@ test('repeat tagging on the same object should produce the same tags', t => {
   );
 });
 
+test('tagging is countable, untagging once does not remove the tags if the same objects was tagged twice', t => {
+  let tagger = new TaggerImmutable(
+    new Set(['key1', 'key2', 'key3', 'key4']),
+    'tag'
+  );
+  const obj1 = {};
+  const obj2 = {};
+  const obj3 = {};
+  const object1 = {
+    key1: obj1,
+    key3: obj3,
+    key4: obj3,
+    key2: obj2
+  };
+  // object2 points to the same objects as object1
+  const object2 = {...object1};
+  tagger = tagger.tag(object1);
+  tagger = tagger.tag(object2);
+  const object1KeyTags = ['key1tag', 'key2tag', 'key3tag', 'key4tag'].reduce(
+    (obj, key) => {
+      return {...obj, [key]: object1[key]};
+    },
+    {}
+  );
+  tagger = tagger.untag(object1);
+  // even though object1 tags are untagged
+  // because object2 is still tagged (and pointing to the same objects)
+  // then we the tags are not truly untagged
+  const object3 = {
+    key1: {},
+    key2: {}
+  };
+  tagger = tagger.tag(object3);
+  // object3.key1tag and object3.key2tag cannot be a reused tag
+  t.is(
+    [
+      object1KeyTags.key1tag,
+      object1KeyTags.key2tag,
+      object1KeyTags.key3tag,
+      object1KeyTags.key4tag
+    ].indexOf(object3.key1tag),
+    -1
+  );
+  t.is(
+    [
+      object1KeyTags.key1tag,
+      object1KeyTags.key2tag,
+      object1KeyTags.key3tag,
+      object1KeyTags.key4tag
+    ].indexOf(object3.key2tag),
+    -1
+  );
+  tagger = tagger.untag(object2);
+  const object4 = {
+    key1: {},
+    key2: {}
+  };
+  tagger = tagger.tag(object4);
+  // since the object1 and object2's tags are really untagged (reference count goes to 0)
+  // we can expect key1tag and key2tag to be reused out of the deallocated tags
+  t.true(
+    [
+      object1KeyTags.key1tag,
+      object1KeyTags.key2tag,
+      object1KeyTags.key3tag,
+      object1KeyTags.key4tag
+    ].indexOf(object4.key1tag) >= 0
+  );
+  t.true(
+    [
+      object1KeyTags.key1tag,
+      object1KeyTags.key2tag,
+      object1KeyTags.key3tag,
+      object1KeyTags.key4tag
+    ].indexOf(object4.key2tag) >= 0
+  );
+});
+
 test('immutability of the tagger', t => {
   const tagger = new TaggerImmutable(
     new Set(['key1', 'key2', 'key3', 'key4']),
