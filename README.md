@@ -84,6 +84,12 @@ tagger = tagger.transaction((tt) => {
 });
 ```
 
+Note that tags are also counted (reference counted). If you tag the same record of objects twice, those tags have a count that is incremented. Such that if you untag once, those tags are still remembered. But if you untag twice, then the tags are truly deallocated and can be reused.
+
+This is all implemented with Facebook's `immutable` Map, and Matrix AI's immutable `resource-counter`.
+
+Note that only objects can be tagged. This is what this library is designed for. It will not tag non-objects.
+
 Development
 ------------
 
