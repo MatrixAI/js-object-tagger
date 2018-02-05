@@ -8774,7 +8774,7 @@ var Reference = unwrapExports(index_browser_umd$2);
 
 function _tag2(tagKeys, tagSuffix, tagCounter, tagMap, changed, object) {
   tagKeys.forEach(function (key) {
-    if (object.hasOwnProperty(key)) {
+    if (object.hasOwnProperty(key) && object[key] instanceof Object) {
       var objectTagged = object[key];
       var tagAndCount = tagMap.get(objectTagged);
       var _tag = void 0;
@@ -8793,7 +8793,7 @@ function _tag2(tagKeys, tagSuffix, tagCounter, tagMap, changed, object) {
 
 function _untag(tagKeys, tagSuffix, tagCounter, tagMap, changed, object) {
   tagKeys.forEach(function (key) {
-    if (object.hasOwnProperty(key)) {
+    if (object.hasOwnProperty(key) && object[key] instanceof Object) {
       var objectTagged = object[key];
       var tagAndCount = tagMap.get(objectTagged);
       if (tagAndCount) {
@@ -8812,7 +8812,9 @@ function _untag(tagKeys, tagSuffix, tagCounter, tagMap, changed, object) {
 
 function _strip(tagKeys, tagSuffix, object) {
   tagKeys.forEach(function (key) {
-    delete object[key + tagSuffix];
+    if (object.hasOwnProperty(key) && object[key] instanceof Object) {
+      delete object[key + tagSuffix];
+    }
   });
 }
 

@@ -10,7 +10,7 @@ var Reference = _interopDefault(require('reference-pointer'));
 
 function _tag(tagKeys, tagSuffix, tagCounter, tagMap, changed, object) {
   tagKeys.forEach(key => {
-    if (object.hasOwnProperty(key)) {
+    if (object.hasOwnProperty(key) && object[key] instanceof Object) {
       const objectTagged = object[key];
       const tagAndCount = tagMap.get(objectTagged);
       let tag;
@@ -29,7 +29,7 @@ function _tag(tagKeys, tagSuffix, tagCounter, tagMap, changed, object) {
 
 function _untag(tagKeys, tagSuffix, tagCounter, tagMap, changed, object) {
   tagKeys.forEach(key => {
-    if (object.hasOwnProperty(key)) {
+    if (object.hasOwnProperty(key) && object[key] instanceof Object) {
       const objectTagged = object[key];
       const tagAndCount = tagMap.get(objectTagged);
       if (tagAndCount) {
@@ -48,7 +48,9 @@ function _untag(tagKeys, tagSuffix, tagCounter, tagMap, changed, object) {
 
 function _strip(tagKeys, tagSuffix, object) {
   tagKeys.forEach(key => {
-    delete object[key + tagSuffix];
+    if (object.hasOwnProperty(key) && object[key] instanceof Object) {
+      delete object[key + tagSuffix];
+    }
   });
 }
 
