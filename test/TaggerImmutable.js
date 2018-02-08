@@ -7,6 +7,10 @@ test('tagging', t => {
     new Set(['key1', 'key2', 'key3', 'key4']),
     'tag'
   );
+  t.true(tagger.isTag('key1tag'));
+  t.true(tagger.isTag('key2tag'));
+  t.true(tagger.isTag('key3tag'));
+  t.true(tagger.isTag('key4tag'));
   // keys that are different with the same object should be tagged the same
   const obj = {};
   const object = {
@@ -27,6 +31,9 @@ test('tagging', t => {
   t.true(object.key2tag !== object.key3tag);
   t.true(object.key2tag !== object.key4tag);
   t.true(object.key3tag === object.key4tag);
+  t.true(tagger.isTag('key4tag', object.key4tag));
+  t.false(tagger.isTag('key5tag'));
+  t.false(tagger.isTag('key4', object.key4));
   t.false(object.hasOwnProperty('keyRandomtag'));
 });
 
@@ -333,6 +340,7 @@ test('transaction bundles up modifications', t => {
     // but have same structure and contents
     // but object2.key1 and object2.key2
     // are unique among all other keys in this case
+    t.true(tt.isTag('key1tag'));
     tt.tag(object1);
     tt.tag(object2);
   });
