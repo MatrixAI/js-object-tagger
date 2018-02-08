@@ -428,3 +428,55 @@ test('transaction bundles up modifications', t => {
   t.false(object1.hasOwnProperty('key3tag'));
   t.false(object1.hasOwnProperty('key4tag'));
 });
+
+test('getting tags', t => {
+  let tagger = new TaggerImmutable(
+    new Set(['key1', 'key2', 'key3', 'key4']),
+    'tag'
+  );
+  const obj = {};
+  const object = {
+    key1: {},
+    key3: obj,
+    key4: obj,
+    key2: {},
+    keyRandom: {}
+  };
+  tagger = tagger.tag(object);
+  const key3tag = object.key3tag;
+  const key4tag = object.key4tag;
+  tagger = tagger.transaction((tt) => {
+    t.deepEqual(tt.getTag('key1', object.key1), ['key1tag', object.key1tag]);
+    t.deepEqual(tt.getTag('key3', obj), ['key3tag', object.key3tag]);
+    t.deepEqual(tt.getTag('key4', object.key4), ['key4tag', object.key4tag]);
+    t.deepEqual(tt.getTag('key2', object.key2), ['key2tag', object.key2tag]);
+  });
+  t.is(tagger.getTag('keyRandom', object.keyRandom), null);
+  const object2 = {
+    key1: {},
+    key3: obj // obj is now tagged 3 times
+  };
+  tagger = tagger.tag(object2);
+  // object2.key1 refers to a new object, it should get a different tag
+  t.deepEqual(tagger.getTag('key1', object2.key1), ['key1tag', object2.key1tag]);
+  t.not(tagger.getTag('key1', object2.key1)[1], object.key1tag);
+  // object2.key3 refers to the same object, it should get the same tag
+  t.deepEqual(tagger.getTag('key3', object2.key3), ['key3tag', object2.key3tag]);
+  t.is(tagger.getTag('key3', object2.key3)[1], object.key3tag);
+  tagger = tagger.untag(object);
+  // object.key1 is now untagged
+  // object.key2 is now untagged
+  // object.key3 is still available, obj is now tagged 2 times
+  // object.key4 is still available, obj is now tagged 1 times
+  t.is(tagger.getTag('key1', object.key1), null);
+  t.is(tagger.getTag('key2', object.key2), null);
+  // key3tag and key4tag and object2.key3tag are all the same
+  t.deepEqual(tagger.getTag('key3', object.key3), ['key3tag', key3tag]);
+  t.deepEqual(tagger.getTag('key4', object.key4), ['key4tag', key4tag]);
+  tagger = tagger.untag(object2);
+  tagger = tagger.transaction((tt) => {
+    t.is(tt.getTag('key3', object.key3), null);
+    t.is(tt.getTag('key4', object.key4), null);
+    t.is(tt.getTag('key3', object2.key3), null);
+  });
+});
