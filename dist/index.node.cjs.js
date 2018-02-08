@@ -54,6 +54,18 @@ function _strip(tagKeys, tagSuffix, object) {
   });
 }
 
+function _isTag(tagKeys, tagSuffix, key, value) {
+  if (value === undefined || typeof value === 'number') {
+    // '' + tagSuffix is also potentially a valid tag
+    // if the empty string was a key
+    const match = key.match(new RegExp('(.*)' + tagSuffix + '$'));
+    if (match && tagKeys.has(match[1])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 class TaggerImmutable {
 
   constructor(tagKeys, tagSuffix, tagCounter = new resourceCounter.CounterImmutable(), tagMap = immutable.Map()) {
@@ -97,6 +109,10 @@ class TaggerImmutable {
     _strip(this._tagKeys, this._tagSuffix, object);
   }
 
+  isTag(key, value) {
+    return _isTag(this._tagKeys, this._tagSuffix, key, value);
+  }
+
   transaction(callback) {
     let changed = new Reference(false);
     let tagCounter, tagMap;
@@ -105,7 +121,8 @@ class TaggerImmutable {
         const taggerTransaction = {
           tag: object => _tag(this._tagKeys, this._tagSuffix, counter, map, changed, object),
           untag: object => _untag(this._tagKeys, this._tagSuffix, counter, map, changed, object),
-          strip: object => _strip(this._tagKeys, this._tagSuffix, object)
+          strip: object => _strip(this._tagKeys, this._tagSuffix, object),
+          isTag: (key, value) => _isTag(this._tagKeys, this._tagSuffix, key, value)
         };
         callback(taggerTransaction);
       });
@@ -120,3 +137,5 @@ class TaggerImmutable {
 }
 
 exports.TaggerImmutable = TaggerImmutable;
+exports.CounterImmutable = resourceCounter.CounterImmutable;
+exports.MapI = immutable.Map;

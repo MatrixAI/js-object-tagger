@@ -212,22 +212,22 @@ var _export = $export;
 _export(_export.S + _export.F * !_descriptors, 'Object', { defineProperty: _objectDp.f });
 
 var $Object = _core.Object;
-var defineProperty$2 = function defineProperty(it, key, desc) {
+var defineProperty = function defineProperty(it, key, desc) {
   return $Object.defineProperty(it, key, desc);
 };
 
-var defineProperty = createCommonjsModule(function (module) {
-module.exports = { "default": defineProperty$2, __esModule: true };
+var defineProperty$2 = createCommonjsModule(function (module) {
+module.exports = { "default": defineProperty, __esModule: true };
 });
 
-unwrapExports(defineProperty);
+unwrapExports(defineProperty$2);
 
 var createClass = createCommonjsModule(function (module, exports) {
 exports.__esModule = true;
 
 
 
-var _defineProperty2 = _interopRequireDefault(defineProperty);
+var _defineProperty2 = _interopRequireDefault(defineProperty$2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8818,6 +8818,18 @@ function _strip(tagKeys, tagSuffix, object) {
   });
 }
 
+function _isTag(tagKeys, tagSuffix, key, value) {
+  if (value === undefined || typeof value === 'number') {
+    // '' + tagSuffix is also potentially a valid tag
+    // if the empty string was a key
+    var match = key.match(new RegExp('(.*)' + tagSuffix + '$'));
+    if (match && tagKeys.has(match[1])) {
+      return true;
+    }
+  }
+  return false;
+}
+
 var TaggerImmutable = function () {
   function TaggerImmutable(tagKeys, tagSuffix) {
     var tagCounter = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new index_browser_umd_1();
@@ -8875,6 +8887,11 @@ var TaggerImmutable = function () {
       _strip(this._tagKeys, this._tagSuffix, object);
     }
   }, {
+    key: 'isTag',
+    value: function isTag(key, value) {
+      return _isTag(this._tagKeys, this._tagSuffix, key, value);
+    }
+  }, {
     key: 'transaction',
     value: function transaction(callback) {
       var _this3 = this;
@@ -8893,6 +8910,9 @@ var TaggerImmutable = function () {
             },
             strip: function strip(object) {
               return _strip(_this3._tagKeys, _this3._tagSuffix, object);
+            },
+            isTag: function isTag(key, value) {
+              return _isTag(_this3._tagKeys, _this3._tagSuffix, key, value);
             }
           };
           callback(taggerTransaction);
@@ -8910,6 +8930,8 @@ var TaggerImmutable = function () {
 }();
 
 exports.TaggerImmutable = TaggerImmutable;
+exports.CounterImmutable = index_browser_umd_1;
+exports.MapI = immutable_1;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
