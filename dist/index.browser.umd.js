@@ -8818,8 +8818,8 @@ function _strip(tagKeys, tagSuffix, object) {
   });
 }
 
-function _isTag(tagKeys, tagSuffix, key, value) {
-  if (value === undefined || typeof value === 'number') {
+function _isTag(tagKeys, tagSuffix, key, tag) {
+  if (tag === undefined || typeof tag === 'number') {
     // '' + tagSuffix is also potentially a valid tag
     // if the empty string was a key
     var match = key.match(new RegExp('(.*)' + tagSuffix + '$'));
@@ -8828,6 +8828,16 @@ function _isTag(tagKeys, tagSuffix, key, value) {
     }
   }
   return false;
+}
+
+function _getTag(tagKeys, tagSuffix, tagMap, key, value) {
+  if (tagKeys.has(key)) {
+    var tagAndCount = tagMap.get(value);
+    if (tagAndCount) {
+      return [key + tagSuffix, tagAndCount[0]];
+    }
+  }
+  return null;
 }
 
 var TaggerImmutable = function () {
@@ -8888,8 +8898,13 @@ var TaggerImmutable = function () {
     }
   }, {
     key: 'isTag',
-    value: function isTag(key, value) {
-      return _isTag(this._tagKeys, this._tagSuffix, key, value);
+    value: function isTag(key, tag) {
+      return _isTag(this._tagKeys, this._tagSuffix, key, tag);
+    }
+  }, {
+    key: 'getTag',
+    value: function getTag(key, value) {
+      return _getTag(this._tagKeys, this._tagSuffix, this._tagMap, key, value);
     }
   }, {
     key: 'transaction',
@@ -8911,8 +8926,11 @@ var TaggerImmutable = function () {
             strip: function strip(object) {
               return _strip(_this3._tagKeys, _this3._tagSuffix, object);
             },
-            isTag: function isTag(key, value) {
-              return _isTag(_this3._tagKeys, _this3._tagSuffix, key, value);
+            isTag: function isTag(key, tag) {
+              return _isTag(_this3._tagKeys, _this3._tagSuffix, key, tag);
+            },
+            getTag: function getTag(key, value) {
+              return _getTag(_this3._tagKeys, _this3._tagSuffix, _this3._tagMap, key, value);
             }
           };
           callback(taggerTransaction);

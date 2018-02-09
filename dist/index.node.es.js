@@ -48,8 +48,8 @@ function _strip(tagKeys, tagSuffix, object) {
   });
 }
 
-function _isTag(tagKeys, tagSuffix, key, value) {
-  if (value === undefined || typeof value === 'number') {
+function _isTag(tagKeys, tagSuffix, key, tag) {
+  if (tag === undefined || typeof tag === 'number') {
     // '' + tagSuffix is also potentially a valid tag
     // if the empty string was a key
     const match = key.match(new RegExp('(.*)' + tagSuffix + '$'));
@@ -58,6 +58,16 @@ function _isTag(tagKeys, tagSuffix, key, value) {
     }
   }
   return false;
+}
+
+function _getTag(tagKeys, tagSuffix, tagMap, key, value) {
+  if (tagKeys.has(key)) {
+    const tagAndCount = tagMap.get(value);
+    if (tagAndCount) {
+      return [key + tagSuffix, tagAndCount[0]];
+    }
+  }
+  return null;
 }
 
 class TaggerImmutable {
@@ -103,8 +113,12 @@ class TaggerImmutable {
     _strip(this._tagKeys, this._tagSuffix, object);
   }
 
-  isTag(key, value) {
-    return _isTag(this._tagKeys, this._tagSuffix, key, value);
+  isTag(key, tag) {
+    return _isTag(this._tagKeys, this._tagSuffix, key, tag);
+  }
+
+  getTag(key, value) {
+    return _getTag(this._tagKeys, this._tagSuffix, this._tagMap, key, value);
   }
 
   transaction(callback) {
@@ -116,7 +130,8 @@ class TaggerImmutable {
           tag: object => _tag(this._tagKeys, this._tagSuffix, counter, map, changed, object),
           untag: object => _untag(this._tagKeys, this._tagSuffix, counter, map, changed, object),
           strip: object => _strip(this._tagKeys, this._tagSuffix, object),
-          isTag: (key, value) => _isTag(this._tagKeys, this._tagSuffix, key, value)
+          isTag: (key, tag) => _isTag(this._tagKeys, this._tagSuffix, key, tag),
+          getTag: (key, value) => _getTag(this._tagKeys, this._tagSuffix, this._tagMap, key, value)
         };
         callback(taggerTransaction);
       });
