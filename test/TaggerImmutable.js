@@ -4,7 +4,7 @@ import TaggerImmutable from '../lib/TaggerImmutable.js';
 
 test('tagging', t => {
   let tagger = new TaggerImmutable(
-    new Set(['key1', 'key2', 'key3', 'key4']),
+    new Set(['key1', 'key2', 'key3', 'key4', 'key5', 'key6']),
     'tag'
   );
   t.true(tagger.isTag('key1tag'));
@@ -13,12 +13,16 @@ test('tagging', t => {
   t.true(tagger.isTag('key4tag'));
   // keys that are different with the same object should be tagged the same
   const obj = {};
+  const nully = null;
+  const undefinedy = undefined;
   const object = {
     key1: {},
     key3: obj,
     key4: obj,
     key2: {},
-    keyRandom: {}
+    keyRandom: {},
+    key5: nully,
+    key6: undefinedy
   };
   tagger = tagger.tag(object);
   // key1 tag should be unique
@@ -31,8 +35,10 @@ test('tagging', t => {
   t.true(object.key2tag !== object.key3tag);
   t.true(object.key2tag !== object.key4tag);
   t.true(object.key3tag === object.key4tag);
+  t.true(object.key5tag !== object.key4tag);
+  t.true(object.key6tag !== object.key5tag);
   t.true(tagger.isTag('key4tag', object.key4tag));
-  t.false(tagger.isTag('key5tag'));
+  t.false(tagger.isTag('key7tag'));
   t.false(tagger.isTag('key4', object.key4));
   t.false(object.hasOwnProperty('keyRandomtag'));
 });
@@ -431,7 +437,7 @@ test('transaction bundles up modifications', t => {
 
 test('getting tags', t => {
   let tagger = new TaggerImmutable(
-    new Set(['key1', 'key2', 'key3', 'key4']),
+    new Set(['key1', 'key2', 'key3', 'key4', 'key5', 'key6', 'key7', 'key8']),
     'tag'
   );
   const obj = {};
@@ -440,7 +446,11 @@ test('getting tags', t => {
     key3: obj,
     key4: obj,
     key2: {},
-    keyRandom: {}
+    keyRandom: {},
+    key5: null,
+    key6: null,
+    key7: undefined,
+    key8: undefined
   };
   tagger = tagger.tag(object);
   const key3tag = object.key3tag;
@@ -463,6 +473,12 @@ test('getting tags', t => {
   // object2.key3 refers to the same object, it should get the same tag
   t.deepEqual(tagger.getTag('key3', object2.key3), ['key3tag', object2.key3tag]);
   t.is(tagger.getTag('key3', object2.key3)[1], object.key3tag);
+  // the null values should get the same tag
+  t.is(tagger.getTag('key5', object.key5)[1], tagger.getTag('key6', object.key6)[1]);
+  t.deepEqual(tagger.getTag('key5', object.key5), ['key5tag', object.key5tag]);
+  // the undefined values should get the same tag
+  t.is(tagger.getTag('key7', object.key7)[1], tagger.getTag('key8', object.key8)[1]);
+  t.deepEqual(tagger.getTag('key7', object.key7), ['key7tag', object.key7tag]);
   tagger = tagger.untag(object);
   // object.key1 is now untagged
   // object.key2 is now untagged
