@@ -349,6 +349,9 @@ test('transaction bundles up modifications', t => {
     t.true(tt.isTag('key1tag'));
     tt.tag(object1);
     tt.tag(object2);
+    // test that we are getting the right tags
+    const tag = tt.getTag('key1', object1.key1);
+    t.deepEqual(tag, ['key1tag', object1.key1tag]);
   });
   t.true(object1.key1tag !== object1.key2tag);
   t.true(object1.key1tag !== object1.key3tag);
