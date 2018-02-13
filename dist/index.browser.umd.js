@@ -9735,7 +9735,7 @@ var TaggerImmutable = function () {
               return _isTag(_this3._tagKeys, _this3._tagSuffix, key, tag);
             },
             getTag: function getTag(key, value) {
-              return _getTag(_this3._tagKeys, _this3._tagSuffix, _this3._tagMap, key, value);
+              return _getTag(_this3._tagKeys, _this3._tagSuffix, map, key, value);
             }
           };
           callback(taggerTransaction);

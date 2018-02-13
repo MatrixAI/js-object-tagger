@@ -131,7 +131,7 @@ class TaggerImmutable {
           untag: object => _untag(this._tagKeys, this._tagSuffix, counter, map, changed, object),
           strip: object => _strip(this._tagKeys, this._tagSuffix, object),
           isTag: (key, tag) => _isTag(this._tagKeys, this._tagSuffix, key, tag),
-          getTag: (key, value) => _getTag(this._tagKeys, this._tagSuffix, this._tagMap, key, value)
+          getTag: (key, value) => _getTag(this._tagKeys, this._tagSuffix, map, key, value)
         };
         callback(taggerTransaction);
       });
