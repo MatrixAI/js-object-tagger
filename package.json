@@ -1,6 +1,6 @@
 {
   "name": "object-tagger",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Takes a POJO and tags specified keys with unique numbers.",
   "keywords": [
     "object",
